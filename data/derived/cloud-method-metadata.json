@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-07-29",
+  "climatology": {
+    "gateway": "Open-Meteo Historical Weather API",
+    "model": "cerra",
+    "years": "1991-2020",
+    "dates_per_year": "August 1-20",
+    "hour": "18:00 UTC",
+    "sample_count_per_location": 600,
+    "variables": [
+      "cloud_cover",
+      "cloud_cover_low",
+      "cloud_cover_mid",
+      "cloud_cover_high"
+    ],
+    "definitions": {
+      "clear_or_lightly_cloudy": "total cloud cover <= 20 percent",
+      "overcast": "total cloud cover >= 80 percent",
+      "low_layer": "CERRA surface to 2500 m",
+      "mid_layer": "CERRA 2500 to 5000 m",
+      "high_layer": "CERRA above 5000 m"
+    },
+    "request_template": "https://archive-api.open-meteo.com/v1/archive?latitude={LAT_LIST}&longitude={LON_LIST}&elevation={ELEVATION_LIST}&start_date={YEAR}-08-01&end_date={YEAR}-08-20&hourly=cloud_cover,cloud_cover_low,cloud_cover_mid,cloud_cover_high&timezone=UTC&models=cerra",
+    "caveats": [
+      "The gateway returns the nearest model land grid cell, recorded explicitly in cloud-climatology.csv.",
+      "Cloud percentages are instantaneous grid-area fractions, not the probability that a particular sightline is clear.",
+      "The low/mid/high layer values overlap vertically and do not sum to total cloud cover.",
+      "Climatology ranks regimes; it is not a forecast for 12 August 2026."
+    ]
+  },
+  "forecast_snapshot": {
+    "retrieved": "2026-07-29",
+    "target": "2026-08-12T18:00:00Z",
+    "status": "illustrative-only",
+    "reason": "The target was about fourteen days away; deterministic detail is unstable and the ECMWF 51-member ensemble did not yet expose the exact 18:00 UTC step.",
+    "layer_definition_difference": "The forecast gateway uses low below 3 km, mid 3-8 km and high above 8 km; these are not the CERRA climatology layer boundaries."
+  }
+}

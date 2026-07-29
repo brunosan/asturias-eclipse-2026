@@ -1,0 +1,23 @@
+condition_id,condition_definition,soto_samples,target_id,target_label,target_clear_or_lightly_cloudy_pct
+soto-overcast,"Soto total cloud at least 80 percent",125,cabo-vidio,Cabo Vidio coast,0.0
+soto-overcast,"Soto total cloud at least 80 percent",125,tapia,Tapia coast,1.6
+soto-overcast,"Soto total cloud at least 80 percent",125,cabo-penas,Cabo Peñas coast,0.8
+soto-overcast,"Soto total cloud at least 80 percent",125,llanes,Llanes coast,6.4
+soto-overcast,"Soto total cloud at least 80 percent",125,leitariegos,Leitariegos ridge,12.8
+soto-overcast,"Soto total cloud at least 80 percent",125,cubilla,La Cubilla ridge,14.4
+soto-overcast,"Soto total cloud at least 80 percent",125,san-isidro,San Isidro ridge,8.0
+soto-overcast,"Soto total cloud at least 80 percent",125,fuente-de,Fuente Dé / Picos,8.0
+soto-overcast,"Soto total cloud at least 80 percent",125,astorga,Astorga plain,49.6
+soto-overcast,"Soto total cloud at least 80 percent",125,leon,León plain,38.4
+soto-overcast,"Soto total cloud at least 80 percent",125,sahagun,Sahagún plain,44.0
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,cabo-vidio,Cabo Vidio coast,2.9
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,tapia,Tapia coast,5.7
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,cabo-penas,Cabo Peñas coast,0.0
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,llanes,Llanes coast,11.4
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,leitariegos,Leitariegos ridge,42.9
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,cubilla,La Cubilla ridge,34.3
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,san-isidro,San Isidro ridge,31.4
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,fuente-de,Fuente Dé / Picos,25.7
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,astorga,Astorga plain,91.4
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,leon,León plain,77.1
+soto-low-dominant,"Soto low cloud at least 70 percent and mid/high each at most 20 percent",35,sahagun,Sahagún plain,68.6

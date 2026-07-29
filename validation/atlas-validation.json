@@ -1,0 +1,115 @@
+{
+  "generated_at": "2026-07-29T17:35:13.099Z",
+  "summary": {
+    "passed": 21,
+    "failed": 0,
+    "total": 21
+  },
+  "checks": [
+    {
+      "name": "candidate count",
+      "passed": true,
+      "evidence": "26/26"
+    },
+    {
+      "name": "candidate/evidence ids",
+      "passed": true,
+      "evidence": "26 evidence rows"
+    },
+    {
+      "name": "candidate/verdict ids",
+      "passed": true,
+      "evidence": "26 verdict rows"
+    },
+    {
+      "name": "all candidates total",
+      "passed": true,
+      "evidence": "26/26"
+    },
+    {
+      "name": "all route baselines resolved",
+      "passed": true,
+      "evidence": "26/26"
+    },
+    {
+      "name": "numeric terrain clearance",
+      "passed": true,
+      "evidence": "26 numeric values"
+    },
+    {
+      "name": "historical sample declaration",
+      "passed": true,
+      "evidence": "12 locations"
+    },
+    {
+      "name": "forecast snapshot segregated",
+      "passed": true,
+      "evidence": "24 illustrative-only rows"
+    },
+    {
+      "name": "C2/maximum/C3 horizon profiles",
+      "passed": true,
+      "evidence": "78/78"
+    },
+    {
+      "name": "route geometry files",
+      "passed": true,
+      "evidence": "26/26"
+    },
+    {
+      "name": "inline atlas under 2 MB",
+      "passed": true,
+      "evidence": "201855 bytes"
+    },
+    {
+      "name": "inline atlas is a fragment",
+      "passed": true,
+      "evidence": "no document wrapper"
+    },
+    {
+      "name": "inline atlas placeholders resolved",
+      "passed": true,
+      "evidence": "no unresolved placeholders"
+    },
+    {
+      "name": "render 01-clear-near-soto.png",
+      "passed": true,
+      "evidence": "143525 bytes"
+    },
+    {
+      "name": "render 02-coastal-west-east-options.png",
+      "passed": true,
+      "evidence": "182323 bytes"
+    },
+    {
+      "name": "render 03-low-cloud-height-ladder.png",
+      "passed": true,
+      "evidence": "214730 bytes"
+    },
+    {
+      "name": "render 04-leon-cross-divide.png",
+      "passed": true,
+      "evidence": "201545 bytes"
+    },
+    {
+      "name": "render 05-historical-cloud-regimes.png",
+      "passed": true,
+      "evidence": "223005 bytes"
+    },
+    {
+      "name": "report DECISION-PLAYBOOK.md",
+      "passed": true,
+      "evidence": "11689 bytes"
+    },
+    {
+      "name": "report COUNCIL-REVIEW.md",
+      "passed": true,
+      "evidence": "7796 bytes"
+    },
+    {
+      "name": "report METHODS-AND-SOURCES.md",
+      "passed": true,
+      "evidence": "15332 bytes"
+    }
+  ]
+}

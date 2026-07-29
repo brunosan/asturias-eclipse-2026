@@ -1,0 +1,828 @@
+<style>
+  #eclipse-atlas-2026 {
+    --background: #f4f1e8;
+    --foreground: #10272f;
+    --muted: #dce6e3;
+    --muted-foreground: #607479;
+    --border: #bdcbc8;
+    --ring: #e7a82d;
+    --destructive: #c85043;
+    --viz-series-1: #0f7777;
+    --viz-series-2: #e1a128;
+    --viz-series-3: #3f77a5;
+    --viz-series-4: #ce6652;
+    --viz-series-6: #76588d;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-sizing: border-box;
+    font: 14px/1.45 Inter, ui-sans-serif, system-ui, -apple-system,
+      BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0 auto;
+    max-width: 1180px;
+    padding: 16px;
+  }
+  #eclipse-atlas-2026 *,
+  #eclipse-atlas-2026 *::before,
+  #eclipse-atlas-2026 *::after {
+    box-sizing: border-box;
+  }
+  #eclipse-atlas-2026 .btn {
+    appearance: none;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--foreground);
+    cursor: pointer;
+    font: inherit;
+    min-height: 36px;
+    padding: 0.45rem 0.8rem;
+  }
+  #eclipse-atlas-2026 .btn:hover {
+    background: color-mix(in srgb, var(--muted) 72%, transparent);
+  }
+  #eclipse-atlas-2026 .btn:focus-visible {
+    outline: 3px solid color-mix(in srgb, var(--ring) 55%, transparent);
+    outline-offset: 2px;
+  }
+  #eclipse-atlas-2026 .btn[aria-pressed="true"] {
+    background: var(--foreground);
+    border-color: var(--foreground);
+    color: var(--background);
+  }
+  #eclipse-atlas-2026 .card {
+    background: color-mix(in srgb, white 42%, transparent);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.75rem;
+  }
+  @media (prefers-color-scheme: dark) {
+    #eclipse-atlas-2026 {
+      --background: #0f1c22;
+      --foreground: #eff4f1;
+      --muted: #223239;
+      --muted-foreground: #a5b6b8;
+      --border: #35474e;
+      --ring: #f0b540;
+      --destructive: #ed7568;
+      --viz-series-1: #54b7b2;
+      --viz-series-2: #f0b540;
+      --viz-series-3: #75a9d1;
+      --viz-series-4: #e18470;
+      --viz-series-6: #ad8cc3;
+    }
+    #eclipse-atlas-2026 .card {
+      background: color-mix(in srgb, white 4%, transparent);
+    }
+  }
+</style>
+
+<div id="eclipse-atlas-2026" class="eclipse-atlas">
+  <div class="atlas-controls" role="group" aria-label="Eclipse scenario">
+    <button class="btn" type="button" data-scenario="clear" aria-pressed="true">Clear · stay near</button>
+    <button class="btn" type="button" data-scenario="coast" aria-pressed="false">Coastal dodge</button>
+    <button class="btn" type="button" data-scenario="low" aria-pressed="false">Low cloud · go above</button>
+    <button class="btn" type="button" data-scenario="leon" aria-pressed="false">Cross to León</button>
+    <button class="btn" type="button" data-scenario="climate" aria-pressed="false">Historical cloud</button>
+  </div>
+  <div class="atlas-heading">
+    <div>
+      <div class="atlas-kicker" id="atlas-kicker"></div>
+      <div class="atlas-title" id="atlas-title"></div>
+    </div>
+    <div class="atlas-legend" id="atlas-legend" aria-label="Map legend"></div>
+  </div>
+  <svg class="atlas-map" viewBox="0 0 760 500" role="img" aria-labelledby="atlas-title atlas-description">
+    <desc id="atlas-description"></desc>
+    <defs>
+      <filter id="atlas-marker-shadow" x="-50%" y="-50%" width="200%" height="200%">
+        <feDropShadow dx="0" dy="1" stdDeviation="1" flood-color="var(--background)" flood-opacity="0.8"></feDropShadow>
+      </filter>
+    </defs>
+    <g class="totality-layer"></g>
+    <g class="region-layer"></g>
+    <g class="route-layer"></g>
+    <g class="ray-layer"></g>
+    <g class="place-layer"></g>
+    <g class="point-layer"></g>
+  </svg>
+  <div class="card atlas-detail" aria-live="polite">
+    <div class="detail-main">
+      <span class="detail-name" id="detail-name"></span>
+      <span class="detail-status" id="detail-status"></span>
+    </div>
+    <div class="detail-evidence" id="detail-evidence"></div>
+    <div class="detail-trigger" id="detail-trigger"></div>
+  </div>
+  <div class="atlas-footnote" id="atlas-footnote"></div>
+</div>
+
+<style>
+  #eclipse-atlas-2026 {
+    color: var(--foreground);
+    width: 100%;
+  }
+  #eclipse-atlas-2026 .atlas-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  #eclipse-atlas-2026 .atlas-heading {
+    align-items: end;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+  }
+  #eclipse-atlas-2026 .atlas-kicker,
+  #eclipse-atlas-2026 .atlas-footnote {
+    color: var(--muted-foreground);
+  }
+  #eclipse-atlas-2026 .atlas-kicker {
+    font-weight: 500;
+  }
+  #eclipse-atlas-2026 .atlas-title,
+  #eclipse-atlas-2026 .detail-name {
+    font-weight: 500;
+  }
+  #eclipse-atlas-2026 .atlas-legend {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: end;
+  }
+  #eclipse-atlas-2026 .legend-item {
+    align-items: center;
+    display: inline-flex;
+    gap: 0.3rem;
+    white-space: nowrap;
+  }
+  #eclipse-atlas-2026 .legend-mark {
+    display: inline-block;
+    height: 0.65rem;
+    width: 0.65rem;
+  }
+  #eclipse-atlas-2026 .legend-mark.recommended {
+    background: var(--viz-series-1);
+    border-radius: 50%;
+  }
+  #eclipse-atlas-2026 .legend-mark.conditional {
+    border: 2px solid var(--viz-series-4);
+    transform: rotate(45deg);
+  }
+  #eclipse-atlas-2026 .legend-mark.rejected {
+    color: var(--destructive);
+    height: auto;
+    width: auto;
+  }
+  #eclipse-atlas-2026 .legend-mark.poor {
+    background: var(--viz-series-6);
+    border-radius: 50%;
+  }
+  #eclipse-atlas-2026 .legend-mark.totality {
+    border-top: 2px dashed var(--viz-series-2);
+    height: 0;
+    width: 1.2rem;
+  }
+  #eclipse-atlas-2026 .atlas-map {
+    display: block;
+    height: auto;
+    max-height: 500px;
+    overflow: hidden;
+    width: 100%;
+  }
+  #eclipse-atlas-2026 .region {
+    fill: color-mix(in srgb, var(--muted) 62%, transparent);
+    stroke: var(--border);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  #eclipse-atlas-2026 .totality-100 {
+    fill: none;
+    stroke: var(--viz-series-2);
+    stroke-opacity: 0.38;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+  #eclipse-atlas-2026 .totality-110 {
+    fill: none;
+    stroke: var(--viz-series-2);
+    stroke-dasharray: 4 4;
+    stroke-opacity: 0.7;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+  #eclipse-atlas-2026 .route {
+    fill: none;
+    stroke: var(--viz-series-1);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-opacity: 0.5;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+  #eclipse-atlas-2026 .route.secondary {
+    stroke: var(--viz-series-3);
+  }
+  #eclipse-atlas-2026 .route.conditional {
+    stroke: var(--viz-series-4);
+    stroke-dasharray: 4 3;
+  }
+  #eclipse-atlas-2026 .sun-ray {
+    fill: none;
+    marker-end: url(#atlas-ray-head);
+    stroke: var(--viz-series-6);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+  #eclipse-atlas-2026 .place-dot {
+    fill: var(--muted-foreground);
+  }
+  #eclipse-atlas-2026 .place-label,
+  #eclipse-atlas-2026 .point-label,
+  #eclipse-atlas-2026 .ray-label,
+  #eclipse-atlas-2026 .cloud-label {
+    fill: var(--foreground);
+    paint-order: stroke;
+    stroke: var(--background);
+    stroke-linejoin: round;
+    stroke-width: 4px;
+  }
+  #eclipse-atlas-2026 .place-label {
+    fill: var(--muted-foreground);
+  }
+  #eclipse-atlas-2026 .point-button {
+    cursor: pointer;
+    outline: none;
+  }
+  #eclipse-atlas-2026 .point-button:focus .point-halo {
+    fill: none;
+    stroke: var(--ring);
+    stroke-width: 3;
+  }
+  #eclipse-atlas-2026 .point-recommended {
+    fill: var(--viz-series-1);
+    stroke: var(--background);
+    stroke-width: 2;
+  }
+  #eclipse-atlas-2026 .point-conditional {
+    fill: var(--background);
+    stroke: var(--viz-series-4);
+    stroke-width: 2.5;
+  }
+  #eclipse-atlas-2026 .point-rejected {
+    fill: none;
+    stroke: var(--destructive);
+    stroke-width: 2.5;
+  }
+  #eclipse-atlas-2026 .point-selected {
+    filter: url(#atlas-marker-shadow);
+    stroke: var(--ring);
+    stroke-width: 3.5;
+  }
+  #eclipse-atlas-2026 .cloud-point {
+    stroke: var(--background);
+    stroke-width: 2;
+  }
+  #eclipse-atlas-2026 .cloud-good {
+    fill: var(--viz-series-1);
+  }
+  #eclipse-atlas-2026 .cloud-mixed {
+    fill: var(--viz-series-4);
+  }
+  #eclipse-atlas-2026 .cloud-poor {
+    fill: var(--viz-series-6);
+  }
+  #eclipse-atlas-2026 .cloud-value {
+    fill: var(--background);
+    font-weight: 500;
+    pointer-events: none;
+    text-anchor: middle;
+  }
+  #eclipse-atlas-2026 .atlas-detail {
+    margin-top: 0.5rem;
+  }
+  #eclipse-atlas-2026 .detail-main {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  #eclipse-atlas-2026 .detail-status {
+    color: var(--muted-foreground);
+  }
+  #eclipse-atlas-2026 .detail-evidence {
+    margin-top: 0.25rem;
+  }
+  #eclipse-atlas-2026 .detail-trigger {
+    color: var(--muted-foreground);
+    margin-top: 0.15rem;
+  }
+  #eclipse-atlas-2026 .atlas-footnote {
+    margin-top: 0.4rem;
+  }
+  @media (max-width: 560px) {
+    #eclipse-atlas-2026 .atlas-heading {
+      align-items: start;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    #eclipse-atlas-2026 .atlas-legend {
+      justify-content: start;
+    }
+  }
+</style>
+
+<script type="module">
+  import {
+    geoMercator,
+    geoPath
+  } from "https://cdn.jsdelivr.net/npm/d3-geo@3/+esm";
+
+  const root = document.getElementById("eclipse-atlas-2026");
+  const svg = root.querySelector(".atlas-map");
+  const regions = __REGIONS_JSON__;
+  const totality = __TOTALITY_JSON__;
+  const routes = __ROUTES_JSON__;
+  const points = __POINTS_JSON__;
+  const clouds = __CLOUD_JSON__;
+  const pointById = new Map(points.map((point) => [point.id, point]));
+  const routeById = new Map(routes.features.map((route) => [route.properties.id, route]));
+  const ns = "http://www.w3.org/2000/svg";
+
+  const statusLabel = {
+    recommended: "recommended",
+    conditional: "conditional",
+    "preposition-only": "pre-position only",
+    "transit-or-preposition-only": "transit / pre-position only",
+    rejected: "rejected",
+    "rejected-current-pin": "current pin rejected"
+  };
+
+  const scenarios = {
+    clear: {
+      kicker: "Branch A · no meaningful cloud at the coast",
+      title: "Stay local. Los Quebrantos is the default.",
+      description: "Closest clear-weather sites around Soto del Barco, with the totality Sun bearing shown west-northwest.",
+      bbox: [-6.17, 43.49, -5.99, 43.62],
+      ids: ["soto-quebrantos", "espiritu-santo", "muros-aguilar"],
+      routeIds: ["soto-quebrantos", "espiritu-santo", "muros-aguilar"],
+      selected: "soto-quebrantos",
+      places: [
+        ["Soto del Barco", -6.0691, 43.5344],
+        ["La Arena", -6.0747, 43.5594],
+        ["Muros de Nalón", -6.1037, 43.5428]
+      ],
+      footnote: "Map route times are free-flow baselines, not eclipse-day forecasts. Totality near Soto is about 20:27 CEST."
+    },
+    coast: {
+      kicker: "Branch B · a local cloud boundary along the coast",
+      title: "Choose west or east once. Do not chase the edge twice.",
+      description: "Official west and east coastal options, with stronger destinations emphasized and constrained sites rejected.",
+      bbox: [-7.08, 43.31, -5.22, 43.73],
+      ids: [
+        "soto-quebrantos", "cabo-vidio", "caroyas", "frexulfe", "porcia",
+        "serantes", "espartal", "xago", "cabo-penas", "faro-luces"
+      ],
+      routeIds: [
+        "cabo-vidio", "caroyas", "frexulfe", "serantes",
+        "espartal", "xago", "faro-luces"
+      ],
+      selected: "cabo-vidio",
+      places: [
+        ["Soto", -6.0691, 43.5344],
+        ["Luarca", -6.5355, 43.5442],
+        ["Avilés", -5.9248, 43.556],
+        ["Gijón", -5.6611, 43.5322]
+      ],
+      footnote: "Move only on a stable observed gap in three consecutive satellite frames. West: Vidio then Caroyas. East: Espartal then Xagó."
+    },
+    low: {
+      kicker: "Branch C · shallow low cloud with clear middle/high layers",
+      title: "Use a height ladder, not an automatic Picos run.",
+      description: "Intermediate and high sites that retain west-northwest terrain clearance, plus non-reactive mountain destinations.",
+      bbox: [-6.62, 42.9, -5.6, 43.62],
+      ids: [
+        "soto-quebrantos", "mirador-penona", "pico-viso",
+        "tineo-casa-puerto", "santuario-acebo", "cobertoria",
+        "farrapona", "coto-bello", "cuitunigru"
+      ],
+      routeIds: [
+        "mirador-penona", "pico-viso", "tineo-casa-puerto",
+        "santuario-acebo", "cobertoria", "farrapona"
+      ],
+      selected: "tineo-casa-puerto",
+      places: [
+        ["Soto", -6.0691, 43.5344],
+        ["Tineo", -6.414, 43.337],
+        ["Cangas del Narcea", -6.5484, 43.177],
+        ["Cordillera Cantábrica", -6.05, 43.02]
+      ],
+      footnote: "A cloud ceiling is the cloud base—not its top. Go high only when observed cloud top is at least 200 m below the chosen site."
+    },
+    leon: {
+      kicker: "Branch D · cloud extends through the mountain layers",
+      title: "Cross the divide by midday or stay north.",
+      description: "South-plain concepts and official León options, with congestion magnets and unsuitable mountain fallbacks marked.",
+      bbox: [-6.35, 42.32, -5.1, 43.64],
+      ids: [
+        "soto-quebrantos", "camposagrado", "leon-palacio",
+        "leon-las-lomas", "villadangos", "leon-camperona"
+      ],
+      routeIds: ["camposagrado", "leon-palacio", "villadangos"],
+      selected: "villadangos",
+      places: [
+        ["Soto", -6.0691, 43.5344],
+        ["Oviedo", -5.8494, 43.3619],
+        ["León", -5.5671, 42.5987],
+        ["Astorga", -6.056, 42.455]
+      ],
+      footnote: "The AP-66 Negrón works and final eclipse controls must be rechecked. Villadangos is a concept until a legal parking parcel is confirmed."
+    },
+    climate: {
+      kicker: "CERRA 1991–2020 · 600 August samples per point · 18:00 UTC",
+      title: "Historical odds favor the León plain, not the high cordillera.",
+      description: "Share of samples with total cloud cover at or below 20 percent; point values are reanalysis grid cells, not forecasts.",
+      bbox: [-7.1, 42.22, -4.65, 43.76],
+      ids: [],
+      routeIds: [],
+      selected: null,
+      places: [
+        ["Soto", -6.0691, 43.5344],
+        ["León", -5.5671, 42.5987],
+        ["Astorga", -6.056, 42.455],
+        ["Picos de Europa", -4.82, 43.18]
+      ],
+      footnote: "Clear/lightly cloudy means total cloud ≤20%. AEMET’s independent eclipse study likewise places the Cantabrian coast near 30–50% and much of Castilla y León near 50–70%."
+    }
+  };
+
+  const labelOffsets = {
+    "soto-quebrantos": [8, -9],
+    "espiritu-santo": [-8, -10, "end"],
+    "muros-aguilar": [-8, 14, "end"],
+    "cabo-vidio": [8, -9],
+    "caroyas": [8, 14],
+    "frexulfe": [-8, -9, "end"],
+    "porcia": [8, 14],
+    "serantes": [-8, -9, "end"],
+    "espartal": [8, -9],
+    "xago": [8, 14],
+    "cabo-penas": [-8, -9, "end"],
+    "faro-luces": [-8, -9, "end"],
+    "mirador-penona": [-8, 14, "end"],
+    "pico-viso": [8, 14],
+    "tineo-casa-puerto": [8, -9],
+    "santuario-acebo": [-8, 14, "end"],
+    "cobertoria": [8, 14],
+    "farrapona": [-8, 14, "end"],
+    "coto-bello": [8, -9],
+    "cuitunigru": [8, 14],
+    "camposagrado": [8, -9],
+    "leon-palacio": [8, 14],
+    "leon-las-lomas": [8, -9],
+    "villadangos": [-8, 14, "end"],
+    "leon-camperona": [8, -9]
+  };
+
+  let currentScenario = "clear";
+  let selectedId = scenarios.clear.selected;
+
+  root.querySelectorAll("[data-scenario]").forEach((button) => {
+    button.addEventListener("click", () => {
+      currentScenario = button.dataset.scenario;
+      selectedId = scenarios[currentScenario].selected;
+      root.querySelectorAll("[data-scenario]").forEach((candidate) => {
+        candidate.setAttribute(
+          "aria-pressed",
+          candidate === button ? "true" : "false"
+        );
+      });
+      render();
+    });
+  });
+
+  render();
+
+  function render() {
+    const scenario = scenarios[currentScenario];
+    root.querySelector("#atlas-kicker").textContent = scenario.kicker;
+    root.querySelector("#atlas-title").textContent = scenario.title;
+    root.querySelector("#atlas-description").textContent = scenario.description;
+    root.querySelector("#atlas-footnote").textContent = scenario.footnote;
+    renderLegend(currentScenario === "climate");
+
+    const boundsFeature = {
+      type: "Polygon",
+      coordinates: [[
+        [scenario.bbox[0], scenario.bbox[1]],
+        [scenario.bbox[0], scenario.bbox[3]],
+        [scenario.bbox[2], scenario.bbox[3]],
+        [scenario.bbox[2], scenario.bbox[1]],
+        [scenario.bbox[0], scenario.bbox[1]]
+      ]]
+    };
+    const projection = geoMercator().fitExtent([[20, 18], [740, 482]], boundsFeature);
+    const path = geoPath(projection);
+
+    renderPaths(".totality-layer", totality.features, (feature) => ({
+      d: path(feature),
+      class: `totality-${feature.properties.duration_seconds}`
+    }));
+    renderPaths(".region-layer", regions.features, (feature) => ({
+      d: path(feature),
+      class: "region"
+    }));
+
+    const activeRoutes = scenario.routeIds
+      .map((id) => routeById.get(id))
+      .filter(Boolean);
+    renderPaths(".route-layer", activeRoutes, (feature) => {
+      const point = pointById.get(feature.properties.id);
+      return {
+        d: path(feature),
+        class: `route ${routeClass(point)}`
+      };
+    });
+
+    renderPlaces(scenario.places, projection);
+    renderSunRay(projection);
+    if (currentScenario === "climate") {
+      renderClouds(projection);
+      showClimateDetail();
+    } else {
+      clearCloudLayer();
+      renderPoints(scenario.ids.map((id) => pointById.get(id)).filter(Boolean), projection);
+      updateDetail(pointById.get(selectedId));
+    }
+  }
+
+  function renderPaths(selector, features, attributes) {
+    const layer = root.querySelector(selector);
+    layer.replaceChildren();
+    for (const feature of features) {
+      const pathElement = document.createElementNS(ns, "path");
+      const values = attributes(feature);
+      for (const [key, value] of Object.entries(values)) {
+        if (value !== null && value !== undefined) pathElement.setAttribute(key, value);
+      }
+      layer.append(pathElement);
+    }
+  }
+
+  function renderPlaces(places, projection) {
+    const layer = root.querySelector(".place-layer");
+    layer.replaceChildren();
+    for (const [label, lon, lat] of places) {
+      const [x, y] = projection([lon, lat]);
+      const dot = document.createElementNS(ns, "circle");
+      dot.setAttribute("class", "place-dot");
+      dot.setAttribute("cx", x);
+      dot.setAttribute("cy", y);
+      dot.setAttribute("r", "2");
+      layer.append(dot);
+      const text = document.createElementNS(ns, "text");
+      text.setAttribute("class", "place-label");
+      text.setAttribute("x", x + 5);
+      text.setAttribute("y", y - 5);
+      text.textContent = label;
+      layer.append(text);
+    }
+  }
+
+  function renderPoints(activePoints, projection) {
+    const layer = root.querySelector(".point-layer");
+    layer.replaceChildren();
+    for (const point of activePoints) {
+      const [x, y] = projection([point.longitude, point.latitude]);
+      const group = document.createElementNS(ns, "g");
+      group.setAttribute("class", "point-button");
+      group.setAttribute("role", "button");
+      group.setAttribute("aria-label", `${point.name}, ${statusLabel[point.operational_status]}`);
+      group.setAttribute("tabindex", "0");
+      group.addEventListener("click", () => selectPoint(point.id));
+      group.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          selectPoint(point.id);
+        }
+      });
+
+      const halo = document.createElementNS(ns, "circle");
+      halo.setAttribute("class", "point-halo");
+      halo.setAttribute("cx", x);
+      halo.setAttribute("cy", y);
+      halo.setAttribute("r", "11");
+      halo.setAttribute("fill", "transparent");
+      group.append(halo);
+
+      const mark = marker(point, x, y);
+      if (point.id === selectedId) mark.classList.add("point-selected");
+      group.append(mark);
+
+      const offset = labelOffsets[point.id] || [8, -8];
+      const text = document.createElementNS(ns, "text");
+      text.setAttribute("class", "point-label");
+      text.setAttribute("x", x + offset[0]);
+      text.setAttribute("y", y + offset[1]);
+      text.setAttribute("text-anchor", offset[2] || "start");
+      text.textContent = shortName(point);
+      group.append(text);
+      layer.append(group);
+    }
+  }
+
+  function marker(point, x, y) {
+    const status = point.operational_status;
+    if (status.startsWith("rejected")) {
+      const pathElement = document.createElementNS(ns, "path");
+      pathElement.setAttribute("class", "point-rejected");
+      pathElement.setAttribute(
+        "d",
+        `M${x - 5},${y - 5}L${x + 5},${y + 5}M${x + 5},${y - 5}L${x - 5},${y + 5}`
+      );
+      return pathElement;
+    }
+    if (status === "recommended") {
+      const circle = document.createElementNS(ns, "circle");
+      circle.setAttribute("class", "point-recommended");
+      circle.setAttribute("cx", x);
+      circle.setAttribute("cy", y);
+      circle.setAttribute("r", "6");
+      return circle;
+    }
+    const pathElement = document.createElementNS(ns, "path");
+    pathElement.setAttribute("class", "point-conditional");
+    pathElement.setAttribute(
+      "d",
+      `M${x},${y - 7}L${x + 7},${y}L${x},${y + 7}L${x - 7},${y}Z`
+    );
+    return pathElement;
+  }
+
+  function selectPoint(id) {
+    selectedId = id;
+    render();
+  }
+
+  function updateDetail(point) {
+    if (!point) return;
+    root.querySelector("#detail-name").textContent = point.name;
+    root.querySelector("#detail-status").textContent =
+      `• ${statusLabel[point.operational_status]}`;
+    root.querySelector("#detail-evidence").textContent =
+      `${Math.round(point.dem_elevation_m)} m · ${point.freeflow_drive_min} min free-flow · ` +
+      `${point.maximum_altitude_deg.toFixed(1)}° Sun at ${point.maximum_azimuth_deg.toFixed(1)}° true · ` +
+      `${point.minimum_totality_clearance_deg.toFixed(1)}° terrain clearance`;
+    root.querySelector("#detail-trigger").textContent =
+      `Use only when: ${point.minimum_trigger} Hard stop: ${point.hard_stop}`;
+  }
+
+  function renderSunRay(projection) {
+    const layer = root.querySelector(".ray-layer");
+    layer.replaceChildren();
+    if (currentScenario === "climate") return;
+    const point = pointById.get(selectedId);
+    if (!point) return;
+    const start = [point.longitude, point.latitude];
+    const end = destination(start[1], start[0], point.maximum_azimuth_deg, 18);
+    const [x1, y1] = projection(start);
+    const [x2, y2] = projection([end[1], end[0]]);
+    const line = document.createElementNS(ns, "line");
+    line.setAttribute("class", "sun-ray");
+    line.setAttribute("x1", x1);
+    line.setAttribute("y1", y1);
+    line.setAttribute("x2", x2);
+    line.setAttribute("y2", y2);
+    layer.append(line);
+    const text = document.createElementNS(ns, "text");
+    text.setAttribute("class", "ray-label");
+    text.setAttribute("x", x2 + 5);
+    text.setAttribute("y", y2 - 4);
+    text.textContent = `Sun ${point.maximum_azimuth_deg.toFixed(1)}°`;
+    layer.append(text);
+  }
+
+  function renderClouds(projection) {
+    const layer = root.querySelector(".point-layer");
+    layer.replaceChildren();
+    for (const cloud of clouds) {
+      const [x, y] = projection([cloud.longitude, cloud.latitude]);
+      const radius = 14;
+      const circle = document.createElementNS(ns, "circle");
+      circle.setAttribute("class", `cloud-point ${cloudClass(cloud.clear_pct)}`);
+      circle.setAttribute("cx", x);
+      circle.setAttribute("cy", y);
+      circle.setAttribute("r", radius);
+      layer.append(circle);
+      const value = document.createElementNS(ns, "text");
+      value.setAttribute("class", "cloud-value");
+      value.setAttribute("x", x);
+      value.setAttribute("y", y + 4);
+      value.textContent = `${Math.round(cloud.clear_pct)}`;
+      layer.append(value);
+      const offsetY = cloud.id === "leon" ? 30 : -20;
+      const label = document.createElementNS(ns, "text");
+      label.setAttribute("class", "cloud-label");
+      label.setAttribute("x", x);
+      label.setAttribute("y", y + offsetY);
+      label.setAttribute("text-anchor", "middle");
+      label.textContent = cloud.short_label;
+      layer.append(label);
+    }
+  }
+
+  function showClimateDetail() {
+    root.querySelector("#detail-name").textContent = "Historical regime";
+    root.querySelector("#detail-status").textContent = "• climatology, not a forecast";
+    root.querySelector("#detail-evidence").textContent =
+      "Clear/light-cloud share: Soto 38%; Cabo Vidio 39%; Tineo-area ridge 37%; León 65%; Astorga 68%.";
+    root.querySelector("#detail-trigger").textContent =
+      "When Soto was historically overcast, another coastal point was clear in only 0–6% of samples; Astorga was clear in 50% and León in 38%.";
+  }
+
+  function renderLegend(climateMode) {
+    const legend = root.querySelector("#atlas-legend");
+    if (climateMode) {
+      legend.innerHTML =
+        '<span class="legend-item"><span class="legend-mark recommended"></span>≥60% clear/light</span>' +
+        '<span class="legend-item"><span class="legend-mark conditional"></span>40–59%</span>' +
+        '<span class="legend-item"><span class="legend-mark poor"></span>&lt;40%</span>' +
+        '<span class="legend-item"><span class="legend-mark totality"></span>IGN 100/110 s</span>';
+      return;
+    }
+    legend.innerHTML =
+      '<span class="legend-item"><span class="legend-mark recommended"></span>recommended</span>' +
+      '<span class="legend-item"><span class="legend-mark conditional"></span>conditional</span>' +
+      '<span class="legend-item"><span class="legend-mark rejected">×</span>rejected</span>' +
+      '<span class="legend-item"><span class="legend-mark totality"></span>IGN 100/110 s</span>';
+  }
+
+  function routeClass(point) {
+    if (!point) return "";
+    if (point.operational_status === "recommended") {
+      return point.branch === "coast-east" ? "secondary" : "";
+    }
+    return "conditional";
+  }
+
+  function cloudClass(value) {
+    if (value >= 60) return "cloud-good";
+    if (value >= 40) return "cloud-mixed";
+    return "cloud-poor";
+  }
+
+  function shortName(point) {
+    const names = {
+      "soto-quebrantos": "Los Quebrantos",
+      "espiritu-santo": "Espíritu Santo",
+      "muros-aguilar": "Aguilar",
+      "mirador-penona": "Peñona · 465 m",
+      "pico-viso": "Pico Viso · 681 m",
+      "cabo-vidio": "Cabo Vidio",
+      caroyas: "Caroyas",
+      frexulfe: "Frexulfe",
+      porcia: "Porcía",
+      serantes: "Serantes",
+      espartal: "El Espartal",
+      xago: "Xagó",
+      "cabo-penas": "Cabo Peñas",
+      "faro-luces": "Faro de Luces",
+      "tineo-casa-puerto": "Casa El Puerto · 1008 m",
+      "santuario-acebo": "El Acebo · 1167 m",
+      cobertoria: "La Cobertoria · 1223 m",
+      farrapona: "Farrapona · 1708 m",
+      "coto-bello": "Coto Bello pin",
+      cuitunigru: "Cuitunigru pin",
+      camposagrado: "Camposagrado",
+      "leon-palacio": "Palacio ESA",
+      "leon-las-lomas": "Las Lomas",
+      villadangos: "Villadangos concept",
+      "leon-camperona": "La Camperona"
+    };
+    return names[point.id] || point.name;
+  }
+
+  function destination(latitude, longitude, bearingDegrees, distanceKm) {
+    const radius = 6371;
+    const bearing = bearingDegrees * Math.PI / 180;
+    const angular = distanceKm / radius;
+    const lat1 = latitude * Math.PI / 180;
+    const lon1 = longitude * Math.PI / 180;
+    const lat2 = Math.asin(
+      Math.sin(lat1) * Math.cos(angular) +
+      Math.cos(lat1) * Math.sin(angular) * Math.cos(bearing)
+    );
+    const lon2 = lon1 + Math.atan2(
+      Math.sin(bearing) * Math.sin(angular) * Math.cos(lat1),
+      Math.cos(angular) - Math.sin(lat1) * Math.sin(lat2)
+    );
+    return [lat2 * 180 / Math.PI, lon2 * 180 / Math.PI];
+  }
+
+  function clearCloudLayer() {
+    // Cloud marks share the point layer and are replaced by renderPoints.
+  }
+</script>

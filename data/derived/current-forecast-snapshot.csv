@@ -1,0 +1,25 @@
+provider,run_or_retrieval,target_time_utc,id,label,total_cloud_pct,low_cloud_pct,mid_cloud_pct,high_cloud_pct,clear_or_lightly_cloudy_ensemble_pct,status
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,soto-leas,Soto / Asturias Airport coast,22,2,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,tapia,Tapia coast,91,39,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,cabo-vidio,Cabo Vidio coast,30,1,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,cabo-penas,Cabo Peñas coast,34,0,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,llanes,Llanes coast,70,24,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,leitariegos,Leitariegos ridge,33,11,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,cubilla,La Cubilla ridge,53,8,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,san-isidro,San Isidro ridge,79,1,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,fuente-de,Fuente Dé / Picos,88,26,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,astorga,Astorga plain,5,0,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,leon,León plain,11,0,0,0,,illustrative-only
+Open-Meteo ECMWF IFS deterministic,2026-07-29T10:06:52Z,2026-08-12T18:00:00Z,sahagun,Sahagún plain,0,0,0,0,,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,soto-leas,Soto / Asturias Airport coast,,,,,54.8,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,tapia,Tapia coast,,,,,54.8,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,cabo-vidio,Cabo Vidio coast,,,,,54.8,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,cabo-penas,Cabo Peñas coast,,,,,54.8,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,llanes,Llanes coast,,,,,48.4,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,leitariegos,Leitariegos ridge,,,,,51.6,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,cubilla,La Cubilla ridge,,,,,51.6,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,san-isidro,San Isidro ridge,,,,,51.6,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,fuente-de,Fuente Dé / Picos,,,,,48.4,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,astorga,Astorga plain,,,,,71.0,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,leon,León plain,,,,,74.2,illustrative-only
+Open-Meteo GFS Ensemble Seamless,retrieved 2026-07-29,2026-08-12T18:00:00Z,sahagun,Sahagún plain,,,,,77.4,illustrative-only

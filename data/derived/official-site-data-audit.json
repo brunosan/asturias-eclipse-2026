@@ -1,0 +1,20 @@
+{
+  "source": "https://eclipseasturias2026.ficyt.es/api/eclipse_observation_spots.php",
+  "retrieved": "2026-07-29",
+  "site_count": 78,
+  "populated_fields": {
+    "aforo": 42,
+    "aparcamiento": 0,
+    "accesibilidad": 0,
+    "accesibilidad_pmr": 0,
+    "banos": 0,
+    "avituallamiento": 0,
+    "iluminacion": 0,
+    "pernocta": 0
+  },
+  "interpretation": [
+    "Aforo is a declared people capacity, not a parking count.",
+    "An empty parking or accessibility field is missing data, not evidence that parking or access is absent.",
+    "No vehicle-demand or queue estimate can be responsibly derived from this API alone."
+  ]
+}

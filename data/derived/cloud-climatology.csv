@@ -1,0 +1,13 @@
+id,label,requested_latitude,requested_longitude,manual_elevation_m,cerra_grid_latitude,cerra_grid_longitude,samples,mean_total_cloud_pct,median_total_cloud_pct,clear_or_lightly_cloudy_pct,overcast_pct,mean_low_cloud_pct,mean_mid_cloud_pct,mean_high_cloud_pct
+soto-leas,Soto / Asturias Airport coast,43.535,-6.070,50,43.56259,-6.058655,600,41.7,32,37.7,20.8,30.8,12.8,31.4
+tapia,Tapia coast,43.570,-6.943,40,43.535915,-6.950043,600,47.1,42,32.3,26.3,37.5,11.8,32.3
+cabo-vidio,Cabo Vidio coast,43.590,-6.242,90,43.58311,-6.271362,600,38.4,30,39.0,18.2,27.6,11.4,30.7
+cabo-penas,Cabo Peñas coast,43.655,-5.850,100,43.638283,-5.871124,600,45.0,37,32.5,24.2,33.8,13.5,32.6
+llanes,Llanes coast,43.420,-4.750,20,43.43032,-4.785934,600,38.6,29,40.3,18.5,26.6,13.0,29.6
+leitariegos,Leitariegos ridge,42.996,-6.414,1525,43.01506,-6.395035,600,44.9,37,37.2,28.5,35.9,10.2,32.9
+cubilla,La Cubilla ridge,43.033,-5.967,1683,43.022408,-5.986572,600,58.6,75,27.8,48.0,52.0,10.8,33.8
+san-isidro,San Isidro ridge,43.060,-5.390,1520,43.054523,-5.379684,600,69.1,90,20.0,63.7,65.4,13.7,35.8
+fuente-de,Fuente Dé / Picos,43.144,-4.812,1823,43.17986,-4.795029,600,70.8,91,18.3,63.7,65.0,17.9,41.7
+astorga,Astorga plain,42.455,-6.055,870,42.464516,-6.0466,600,19.4,9,68.3,5.0,6.2,10.2,28.0
+leon,León plain,42.600,-5.570,840,42.5847,-5.535278,600,21.3,10,64.5,7.3,6.7,12.7,28.9
+sahagun,Sahagún plain,42.371,-5.029,820,42.355602,-5.006638,600,22.5,12,62.3,6.5,5.1,15.3,31.1

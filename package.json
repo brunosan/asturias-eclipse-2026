@@ -1,0 +1,23 @@
+{
+  "name": "asturias-eclipse-2026-decision-atlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "build:data": "node scripts/build-data.mjs",
+    "build:map-data": "node scripts/build-map-data.mjs",
+    "build:atlas": "node scripts/build-atlas.mjs",
+    "render:maps": "node scripts/render-map-snapshots.mjs",
+    "verify": "node scripts/validate.mjs",
+    "check": "npm run build:atlas && npm run verify"
+  },
+  "dependencies": {
+    "astronomy-engine": "2.1.19"
+  },
+  "devDependencies": {
+    "playwright": "1.61.1"
+  }
+}

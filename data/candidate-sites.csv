@@ -1,0 +1,27 @@
+id,name,region,municipality,population_scope,scenario,latitude,longitude,declared_elevation_m,official_status,official_capacity,access_note,initial_crowd_risk
+soto-quebrantos,Playa de Los Quebrantos,Asturias,Soto del Barco,municipality,clear-near,43.5656588,-6.0695741,,Asturias official site,,Pedestrian access to the beach; official shuttle corridor,high
+espiritu-santo,Mirador del Espíritu Santo,Asturias,Muros de Nalón,municipality,clear-near,43.5637954,-6.0813308,,Asturias official shuttle observation site,,About 5 km from Sotu; public-transport corridor; exact capacity unpublished,high
+muros-aguilar,Playa del Aguilar,Asturias,Muros de Nalón,municipality,clear-near,43.5550890,-6.1162556,,Asturias official site,5000,Official shuttle corridor; cove horizon must be checked,high
+mirador-penona,Mirador de la Peñona,Asturias,Pravia,municipality,very-low-cloud,43.5251193,-6.1389354,,Asturias official site,,Intermediate-height local option; small local-road approach,medium
+pico-viso,Mirador Pico el Viso,Asturias,Salas,municipality,very-low-cloud,43.4220818,-6.2523164,,Asturias official site,,Intermediate-height option before committing to the high cordillera,medium
+cabo-vidio,Cabo Vidio - Oviñana,Asturias,Cudillero,municipality,coast-west,43.5932583,-6.2431644,,Asturias official site,4000,Local-road final approach,high
+caroyas,Caroyas,Asturias,Valdés,municipality,coast-west,43.5456314,-6.4779871,,Asturias official site,9000,A-8 corridor then local access,medium
+frexulfe,Playa de Frexulfe,Asturias,Navia,municipality,coast-west,43.5592345,-6.6781800,,Asturias official site,350,Small official site and constrained local access,medium
+porcia,Playa de Porcía,Asturias,El Franco,municipality,coast-west,43.5636469,-6.8734674,,Asturias official site,180,Very small official capacity and constrained final road,high
+serantes,Playa de Serantes,Asturias,Tapia de Casariego,municipality,coast-west,43.5558486,-6.9749397,,Asturias official site,4000,Far-west branch; constrained final beach access; commit early,high
+espartal,Playa de San Juan de Nieva - El Espartal,Asturias,Castrillón,municipality,coast-east,43.5869747,-5.9429525,,Asturias official site,,Short A-8/local-road move from Soto del Barco,medium
+xago,Playa de Xagó,Asturias,Gozón,municipality,coast-east,43.6044872,-5.9192947,,Asturias official shuttle observation site,,Broad sea horizon and special shuttle; road parking plan unpublished,high
+cabo-penas,Faro del Cabo Peñas,Asturias,Gozón,municipality,coast-east,43.6556465,-5.8485330,,Asturias official site,200,Iconic site with tiny declared capacity; shuttle route,very-high
+faro-luces,Faro de Luces,Asturias,Colunga,municipality,coast-east,43.5340142,-5.3003442,,Asturias official site,400,Long A-8 chase then local-road approach,high
+tineo-casa-puerto,Alto de la Casa El Puerto - Sierra de Tineo,Asturias,Tineo,municipality,above-low-cloud,43.3641894,-6.3979615,,Asturias official site,10000,Large declared capacity; inland mountain-road approach,medium
+santuario-acebo,Santuario del Acebo,Asturias,Cangas del Narcea,municipality,above-low-cloud,43.1588050,-6.4988939,,Asturias official site,,Western high-ground alternative; access and parking require scouting,high
+coto-bello,Alto de Coto Bello,Asturias,Aller,municipality,above-low-cloud,43.1350041,-5.6347317,,Asturias official site,4900,Mountain access road; arrive early,high
+cobertoria,Prau Llagüezos - La Cobertoria,Asturias,Lena,municipality,above-low-cloud,43.1466234,-5.9068301,,Asturias official site,2000,Mountain pass access; official site,high
+farrapona,Alto de la Farrapona,Asturias,Somiedo,municipality,above-low-cloud,43.0570091,-6.0899640,1708,Asturias official site,,Official shuttle announced; narrow high-mountain road,very-high
+cuitunigru,Cuitunigru - Valgrande Pajares,Asturias,Lena,municipality,above-low-cloud,42.9731081,-5.7812191,1850,Asturias special managed event,,Telecabina announced for eclipse afternoon; operating details pending,very-high
+sotres-caballar,Sotres - La Caballar,Asturias,Cabrales,municipality,Picos-test,43.2378144,-4.7379199,,Asturias official site,200,Official shuttle; very constrained Picos access and western relief,very-high
+camposagrado,Iglesia de Camposagrado,León,Carrocera,municipality,leon-escape,42.7333473,-5.7272234,,León regional brochure area,,Direct AP-66/N-630 corridor then local road; exact event controls pending,medium
+leon-palacio,Palacio de Exposiciones de León,León,León,municipality,leon-escape,42.5933469,-5.5835976,819,Official ESA event,,Free no-registration event; about 400 venue parking spaces; event capacity unpublished; gates 17:30,extreme
+leon-las-lomas,Mirador de Las Lomas 3,León,Valdefresno,León urban edge,leon-escape,42.5971000,-5.5404000,889,León regional brochure area,,City-edge road network; likely major hotspot,very-high
+villadangos,Villadangos del Páramo open plain,León,Villadangos del Páramo,municipality,leon-escape,42.5172921,-5.7668042,,Independent fallback - not a managed site,,Broad plain near A-66/AP-71; legal parking must be confirmed,low
+leon-camperona,La Camperona - Sotillos de Sabero,León,Sabero,municipality,leon-escape,42.8531100,-5.1942900,1597,León regional flagship site,,Final 3 km averages about 12 percent and reaches about 20 percent; no late chase,extreme
