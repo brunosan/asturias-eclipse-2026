@@ -1,8 +1,8 @@
 # Public release assessment
 
-**Assessment date:** 29 July 2026
+**Assessment date:** 30 July 2026
 
-**Evidence cut:** 29 July 2026
+**Evidence cut:** 30 July 2026
 
 **Release target:** public source and evidence repository
 
@@ -25,6 +25,8 @@ traffic plan, or a guarantee of access or clear sky.
 - 26 candidate inputs, calculated evidence, and verdicts;
 - 78 terrain horizon profiles and 26 free-flow route geometries;
 - CERRA climatology and conditional cloud analysis;
+- 18 exact joint cloud-regime rows;
+- 30 long-tail war-game conditions and 10 disclosed route-pressure assessments;
 - long-range forecast snapshot clearly marked illustrative-only;
 - interactive atlas, five static map states, and validation receipt.
 
@@ -59,19 +61,26 @@ author. No private working commit is inherited.
 
 ### Evidence and atlas
 
-`npm run check` passes **21 of 21** checks:
+`npm run check` passes **28 of 28** checks:
 
 - 26 candidate, evidence, and verdict IDs match;
 - all 26 candidates are within totality;
 - all 26 free-flow route baselines resolved;
 - terrain clearance values are numeric;
 - 12 historical cloud locations each declare 600 samples;
+- 18 joint cloud-regime rows retain their declared 600-case base and audited
+  conditional frequencies;
+- all 30 war-game records have unique IDs, probability provenance and complete
+  operational responses;
+- all 10 route-pressure scores reproduce from the disclosed component formula
+  and explicitly reject free-flow time as an eclipse-day ETA;
 - 24 long-range forecast rows remain segregated as illustrative-only;
 - 78 C2/maximum/C3 horizon profiles are present;
 - 26 route geometries are present;
 - the inline atlas is below 2 MB and has no unresolved placeholders;
 - five static map renders exceed the minimum artifact-size gate;
-- the playbook, council review, and methods report pass the document gate.
+- the playbook, council review, methods report and war-game assessment pass the
+  document gate.
 
 The renderer exercised all five scenario controls. At 360 px it reported a
 310 px visible map, 360 px page scroll width, and 360 px client width: no
@@ -87,12 +96,16 @@ Machine-readable result:
 - ESLint: pass.
 - Production build: pass.
 - Rendered-HTML tests: **2 passed, 0 failed**.
-- Production smoke test: root HTML returned 200; the Open-Meteo route returned
-  200 with 10 locations; the DGT route returned 200 with a live, timestamped
-  regional snapshot.
+- Responsive browser check: the branch-relevant default, explicit 30-scenario
+  view and 10 route cards rendered at 1280 px and 390 px with no horizontal
+  overflow or browser errors; family, branch, coast-direction and route-jump
+  controls were exercised.
+- Production smoke test: the authenticated root HTML returned 200 with the
+  war-game surface; the DGT route returned 200 with a live, timestamped regional
+  snapshot and route-specific corridor matches.
 
 The smoke result only proves retrieval at
-`2026-07-29T17:36Z`. It is not evidence that either provider will be available
+`2026-07-30T08:57:16Z`. It is not evidence that either provider will be available
 later.
 
 ## Known software risks

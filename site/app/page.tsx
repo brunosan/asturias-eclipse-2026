@@ -1,11 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import warGameData from "./data/war-game-assessment.json";
 
 const ECLIPSE_AT = new Date("2026-08-12T20:27:46+02:00");
-const DATA_CUT = "29 Jul 2026";
+const DATA_CUT = "30 Jul 2026";
 
 type ScenarioId = "clear" | "coast" | "low" | "leon";
+type CoastDirection = "west" | "east";
+type ExecutionBranchId =
+  | "clear"
+  | "coast-west"
+  | "coast-east"
+  | "low"
+  | "leon";
 type GateKey =
   | "access"
   | "satellite"
@@ -15,6 +23,12 @@ type GateKey =
   | "southLegal"
   | "ap66"
   | "southObserved";
+type BranchChecks = Partial<
+  Record<ExecutionBranchId, Partial<Record<GateKey, boolean>>>
+>;
+type BranchGateTimes = Partial<
+  Record<ExecutionBranchId, Partial<Record<GateKey, string>>>
+>;
 
 type ForecastLocation = {
   id: string;
@@ -63,6 +77,17 @@ type TrafficIncident = {
   municipality: string;
   province: string;
   type: string;
+  startAt?: string | null;
+  endAt?: string | null;
+  management?: string | null;
+};
+
+type TrafficCorridor = {
+  id: string;
+  name: string;
+  roads: string[];
+  recordCount: number;
+  incidents: TrafficIncident[];
 };
 
 type TrafficPayload = {
@@ -74,9 +99,12 @@ type TrafficPayload = {
   sourceUrl?: string;
   regionalCount?: number;
   incidents?: TrafficIncident[];
+  corridors?: TrafficCorridor[];
   message?: string;
   caveat: string;
 };
+
+type WarFamily = "all" | "weather" | "traffic" | "access" | "human" | "data";
 
 type Scenario = {
   id: ScenarioId;
@@ -176,6 +204,20 @@ const GATE_LABELS: Record<GateKey, string> = {
   southObserved: "Observed and multi-model south advantage persists",
 };
 
+const WAR_FAMILIES: Array<{ id: WarFamily; label: string }> = [
+  { id: "all", label: "All 30" },
+  { id: "weather", label: "Weather" },
+  { id: "traffic", label: "Traffic" },
+  { id: "access", label: "Access" },
+  { id: "human", label: "Human" },
+  { id: "data", label: "Data" },
+];
+
+const WAR_SOURCES = warGameData.sources as Record<
+  string,
+  { label: string; url?: string; path?: string }
+>;
+
 const OFFICIAL_LINKS = [
   {
     name: "AEMET visible satellite",
@@ -211,6 +253,10 @@ const OFFICIAL_LINKS = [
 
 export default function Home() {
   const [activeScenario, setActiveScenario] = useState<ScenarioId>("clear");
+  const [coastDirection, setCoastDirection] =
+    useState<CoastDirection>("west");
+  const [warFilter, setWarFilter] = useState<WarFamily>("all");
+  const [warBranchOnly, setWarBranchOnly] = useState(true);
   const [weather, setWeather] = useState<WeatherPayload | null>(null);
   const [weatherStatus, setWeatherStatus] = useState<"loading" | "ready" | "error">(
     "loading",
@@ -220,8 +266,9 @@ export default function Home() {
     "loading" | "live" | "stale" | "unavailable"
   >("loading");
   const [clock, setClock] = useState<Date | null>(null);
-  const [checks, setChecks] = useState<Partial<Record<GateKey, boolean>>>({});
-  const [checksUpdatedAt, setChecksUpdatedAt] = useState<string | null>(null);
+  const [checksByBranch, setChecksByBranch] = useState<BranchChecks>({});
+  const [gateTimesByBranch, setGateTimesByBranch] =
+    useState<BranchGateTimes>({});
 
   const refreshWeather = useCallback(async () => {
     setWeatherStatus((current) => (current === "ready" ? "ready" : "loading"));
@@ -266,16 +313,16 @@ export default function Home() {
       setClock(new Date());
       void refreshWeather();
       void refreshTraffic();
-      const stored = window.localStorage.getItem("eclipse-live-gates");
+      const stored = window.localStorage.getItem("eclipse-live-gates-v2");
       if (stored) {
         try {
           const parsed = JSON.parse(stored) as {
-            checks?: Partial<Record<GateKey, boolean>>;
-            updatedAt?: string;
+            checksByBranch?: BranchChecks;
+            gateTimesByBranch?: BranchGateTimes;
           };
-          if (parsed.checks) {
-            setChecks(parsed.checks);
-            setChecksUpdatedAt(parsed.updatedAt ?? null);
+          if (parsed.checksByBranch) setChecksByBranch(parsed.checksByBranch);
+          if (parsed.gateTimesByBranch) {
+            setGateTimesByBranch(parsed.gateTimesByBranch);
           }
         } catch {
           // Ignore malformed device-local state.
@@ -293,10 +340,40 @@ export default function Home() {
     };
   }, [refreshTraffic, refreshWeather]);
 
-  const active = SCENARIOS.find((scenario) => scenario.id === activeScenario)!;
+  const activeBase = SCENARIOS.find(
+    (scenario) => scenario.id === activeScenario,
+  )!;
+  const active = resolveScenario(activeBase, coastDirection);
+  const activeBranchId: ExecutionBranchId =
+    active.id === "coast" ? `coast-${coastDirection}` : active.id;
+  const checks = checksByBranch[activeBranchId] ?? {};
+  const gateTimes = gateTimesByBranch[activeBranchId] ?? {};
+  const visibleWarScenarios = useMemo(
+    () =>
+      warGameData.scenarios
+        .filter(
+          (scenario) =>
+            (warFilter === "all" || scenario.family === warFilter) &&
+            (!warBranchOnly || scenario.branches.includes(active.id)),
+        )
+        .sort(
+          (left, right) =>
+            Number(right.veto) - Number(left.veto) ||
+            right.impact.level - left.impact.level ||
+            left.id.localeCompare(right.id),
+        ),
+    [active.id, warBranchOnly, warFilter],
+  );
   const weatherById = useMemo(
     () => new Map((weather?.locations ?? []).map((location) => [location.id, location])),
     [weather],
+  );
+  const trafficByCorridor = useMemo(
+    () =>
+      new Map(
+        (traffic?.corridors ?? []).map((corridor) => [corridor.id, corridor]),
+      ),
+    [traffic],
   );
   const daysOut = clock
     ? Math.max(0, (ECLIPSE_AT.getTime() - clock.getTime()) / 86_400_000)
@@ -312,8 +389,15 @@ export default function Home() {
   const weatherFresh =
     weatherStatus === "ready" &&
     isRecent(weather?.retrievedAt, clock, 15 * 60_000);
-  const checksFresh = isRecent(checksUpdatedAt, clock, 60 * 60_000);
-  const branchModelSupported = modelSignal.scenario === active.id && modelSignal.actionable;
+  const checksFresh = active.requiredGates.every(
+    (gate) =>
+      Boolean(checks[gate]) &&
+      isRecent(gateTimes[gate] ?? null, clock, 60 * 60_000),
+  );
+  const branchModelSupported =
+    modelSignal.scenario === active.id &&
+    modelSignal.actionable &&
+    (active.id !== "coast" || modelSignal.coastDirection === coastDirection);
   const actionable =
     weatherFresh &&
     branchModelSupported &&
@@ -330,13 +414,26 @@ export default function Home() {
           : "error";
 
   function toggleGate(gate: GateKey) {
-    const next = { ...checks, [gate]: !checks[gate] };
-    const updatedAt = new Date().toISOString();
-    setChecks(next);
-    setChecksUpdatedAt(updatedAt);
+    const checked = !checks[gate];
+    const nextChecks: BranchChecks = {
+      ...checksByBranch,
+      [activeBranchId]: { ...checks, [gate]: checked },
+    };
+    const nextGateTimes: BranchGateTimes = {
+      ...gateTimesByBranch,
+      [activeBranchId]: {
+        ...gateTimes,
+        [gate]: checked ? new Date().toISOString() : undefined,
+      },
+    };
+    setChecksByBranch(nextChecks);
+    setGateTimesByBranch(nextGateTimes);
     window.localStorage.setItem(
-      "eclipse-live-gates",
-      JSON.stringify({ checks: next, updatedAt }),
+      "eclipse-live-gates-v2",
+      JSON.stringify({
+        checksByBranch: nextChecks,
+        gateTimesByBranch: nextGateTimes,
+      }),
     );
   }
 
@@ -353,6 +450,8 @@ export default function Home() {
         <nav className="desktop-nav" aria-label="Main navigation">
           <a href="#today">Today</a>
           <a href="#scenarios">Scenarios</a>
+          <a href="#war-games">War games</a>
+          <a href="#routes">Routes</a>
           <a href="#live">Live data</a>
           <a href="#evidence">Evidence</a>
         </nav>
@@ -499,6 +598,28 @@ export default function Home() {
             <p className="scenario-number">
               SCENARIO {String(SCENARIOS.findIndex((item) => item.id === active.id) + 1).padStart(2, "0")}
             </p>
+            {active.id === "coast" && (
+              <div
+                className="coast-direction"
+                role="group"
+                aria-label="Coastal direction"
+              >
+                <button
+                  type="button"
+                  aria-pressed={coastDirection === "west"}
+                  onClick={() => setCoastDirection("west")}
+                >
+                  West corridor
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={coastDirection === "east"}
+                  onClick={() => setCoastDirection("east")}
+                >
+                  East corridor
+                </button>
+              </div>
+            )}
             <h3>{active.title}</h3>
             <p className="scenario-thesis">{active.thesis}</p>
 
@@ -543,7 +664,7 @@ export default function Home() {
               <div className="gate-checklist-heading">
                 <span>Manual live gates</span>
                 <small>
-                  {requiredComplete}/{active.requiredGates.length} confirmed
+                  {requiredComplete}/{active.requiredGates.length} checked
                 </small>
               </div>
               {active.requiredGates.map((gate) => (
@@ -553,15 +674,30 @@ export default function Home() {
                     checked={Boolean(checks[gate])}
                     onChange={() => toggleGate(gate)}
                   />
-                  <span>{GATE_LABELS[gate]}</span>
+                  <span className="gate-copy">
+                    {gateLabel(gate, active.id, coastDirection)}
+                    <small>
+                      {gateTimes[gate]
+                        ? `${formatMadridTime(gateTimes[gate])}${
+                            isRecent(
+                              gateTimes[gate],
+                              clock,
+                              60 * 60_000,
+                            )
+                              ? ""
+                              : " · expired"
+                          }`
+                        : "not timestamped"}
+                    </small>
+                  </span>
                 </label>
               ))}
               <p>
-                Device-local ·{" "}
-                {checksUpdatedAt
-                  ? `last changed ${formatMadridTime(checksUpdatedAt)}`
-                  : "not yet timestamped"}
-                {checksUpdatedAt && !checksFresh ? " · expired after 60 min" : ""}
+                Device-local · scoped to{" "}
+                {active.id === "coast"
+                  ? `${coastDirection} coast`
+                  : active.tab.toLowerCase()}
+                {" · "}each confirmation expires after 60 min
               </p>
             </div>
 
@@ -598,6 +734,290 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section war-section" id="war-games">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">LONG-TAIL WAR ROOM</p>
+            <h2>Thirty ways the plan can change—or fail.</h2>
+          </div>
+          <p>
+            These are cross-cutting conditions, not thirty destinations. Critical
+            access and safety vetoes outrank probability.
+          </p>
+        </div>
+
+        <div className="war-answer">
+          <div>
+            <span className="war-answer-label">HISTORICAL ANSWER</span>
+            <h3>Broken coast: maybe. Deep overcast: rarely. Height: only when proven.</h3>
+          </div>
+          <p>
+            Coastal movement had value in partial cloud, but nearby cells were far
+            from independent. Under the narrow shallow-deck signature, a sampled
+            ridge was clear in 54% of cases—yet every ridge failed in 46%, and the
+            south plain was stronger in the small sample.
+          </p>
+        </div>
+
+        <div className="history-grid">
+          {warGameData.historicalFindings.map((finding) => (
+            <article key={finding.id}>
+              <small>{finding.title}</small>
+              <strong>{finding.headline}</strong>
+              <p>{finding.detail}</p>
+            </article>
+          ))}
+        </div>
+
+        <div className="probability-legend" aria-label="Probability provenance">
+          {warGameData.probabilityKinds.map((kind) => (
+            <div key={kind.code}>
+              <span className={`probability-code probability-code--${kind.code.toLowerCase()}`}>
+                {kind.code}
+              </span>
+              <p>
+                <strong>{kind.name}</strong>
+                {kind.definition}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="war-controls">
+          <div className="war-filters" role="group" aria-label="War-game family">
+            {WAR_FAMILIES.map((family) => (
+              <button
+                key={family.id}
+                type="button"
+                aria-pressed={warFilter === family.id}
+                onClick={() => setWarFilter(family.id)}
+              >
+                {family.label}
+              </button>
+            ))}
+          </div>
+          <button
+            className="branch-filter"
+            type="button"
+            aria-pressed={warBranchOnly}
+            onClick={() => setWarBranchOnly((current) => !current)}
+          >
+            {warBranchOnly ? "Showing" : "Filter to"} active branch: {active.title}
+          </button>
+          <span>
+            {visibleWarScenarios.length} condition
+            {visibleWarScenarios.length === 1 ? "" : "s"}
+          </span>
+          <a className="routes-shortcut" href="#routes">
+            Skip to route pressure ↓
+          </a>
+        </div>
+
+        <div className="war-grid">
+          {visibleWarScenarios.map((scenario) => (
+            <article
+              className={`war-card ${scenario.veto ? "war-card--veto" : ""}`}
+              key={scenario.id}
+            >
+              <div className="war-card-topline">
+                <span>{scenario.id}</span>
+                <span>{scenario.family}</span>
+                {scenario.veto && <strong>VETO</strong>}
+              </div>
+              <h3>{scenario.title}</h3>
+              <div className="war-probability">
+                <span
+                  className={`probability-code probability-code--${scenario.probability.kind.toLowerCase()}`}
+                  aria-label={`${scenario.probability.kind} probability provenance`}
+                >
+                  {scenario.probability.kind}
+                </span>
+                <p>
+                  <strong>{scenario.probability.label}</strong>
+                  {scenario.probability.detail}
+                </p>
+              </div>
+              <div className="impact-row">
+                <span>Impact · {scenario.impact.label}</span>
+                <span
+                  className="impact-dots"
+                  aria-label={`${scenario.impact.level} of 5 impact`}
+                >
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <i
+                      className={index < scenario.impact.level ? "is-filled" : ""}
+                      key={index}
+                    />
+                  ))}
+                </span>
+              </div>
+              <dl className="war-actions">
+                <div>
+                  <dt>Observe</dt>
+                  <dd>{scenario.trigger}</dd>
+                </div>
+                <div>
+                  <dt>Do</dt>
+                  <dd>{scenario.action}</dd>
+                </div>
+                <div>
+                  <dt>Reduce impact</dt>
+                  <dd>{scenario.mitigation}</dd>
+                </div>
+                <div>
+                  <dt>Hard stop</dt>
+                  <dd>{scenario.hardStop}</dd>
+                </div>
+              </dl>
+              <div className="war-card-footer">
+                <span>{scenario.deadline}</span>
+                <div aria-label="Evidence sources">
+                  {scenario.sourceIds.slice(0, 3).map((sourceId) => {
+                    const source = WAR_SOURCES[sourceId];
+                    if (!source) return null;
+                    return source.url ? (
+                      <a
+                        href={source.url}
+                        key={sourceId}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        {source.label} ↗
+                      </a>
+                    ) : (
+                      <span key={sourceId}>{source.label}</span>
+                    );
+                  })}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="route-heading" id="routes">
+          <div>
+            <p className="eyebrow">ROUTE-PRESSURE ESTIMATOR</p>
+            <h2>How fragile is the move?</h2>
+          </div>
+          <p>
+            The ordinal pressure band combines residents, May 2026 tourist-bed
+            intensity, site attraction, summer load, last-mile geometry,
+            shared-route exposure, parking certainty and current controls. It is
+            a disclosed triage heuristic—not an ETA or calibrated probability.
+          </p>
+        </div>
+
+        <div className="route-model-note">
+          <strong>Known weakness</strong>
+          <span>
+            The official Asturias feed publishes people capacity for 42 of 78
+            sites, but no parking counts. Numeric vehicle ranges below are stress
+            tests only where people capacity is complete.
+          </span>
+          <a
+            href="https://eclipseasturias2026.ficyt.es/api/eclipse_observation_spots.php"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Inspect official feed ↗
+          </a>
+        </div>
+
+        <div className="route-grid">
+          {warGameData.routes.map((route) => {
+            const liveCorridor = trafficByCorridor.get(route.id);
+            const liveLabel =
+              trafficStatus === "live" || trafficStatus === "stale"
+                ? `${liveCorridor?.recordCount ?? 0} matched DGT record${
+                    liveCorridor?.recordCount === 1 ? "" : "s"
+                  }`
+                : "Live route state unknown";
+            return (
+              <article className="route-card" key={route.id}>
+                <div className="route-card-heading">
+                  <div>
+                    <small>{route.mode}</small>
+                    <h3>{route.name}</h3>
+                  </div>
+                  <span
+                    className={`pressure-badge pressure-badge--${route.pressureBand}`}
+                  >
+                    {route.pressureBand}
+                    <small>pressure</small>
+                  </span>
+                </div>
+
+                <p className="route-road">{route.roadLabel}</p>
+                <div className="route-live">
+                  <span
+                    className={`traffic-status traffic-status--${trafficStatus}`}
+                  >
+                    {trafficStatus}
+                  </span>
+                  <strong>{liveLabel}</strong>
+                  <small>
+                    Zero matches never means clear; verify cameras and controls.
+                  </small>
+                </div>
+
+                <div className="route-stats">
+                  <span>
+                    <small>Free-flow only</small>
+                    {route.distanceKm.toFixed(1)} km · {route.freeflowMinutes} min
+                  </span>
+                  <span>
+                    <small>Residents</small>
+                    {formatInteger(route.population2025)}
+                  </span>
+                  <span>
+                    <small>Tourist-bed proxy</small>
+                    {formatInteger(route.vutBedsMay2026)} ·{" "}
+                    {route.vutBedsPer1000.toFixed(0)}/1k
+                  </span>
+                  <span>
+                    <small>Exposure condition</small>
+                    {route.conditionalDisruption.condition}
+                  </span>
+                </div>
+
+                <div className="component-grid" aria-label="Pressure components">
+                  {Object.entries(route.components).map(([factor, value]) => (
+                    <span key={factor}>
+                      <small>{humanizeFactor(factor)}</small>
+                      <i>
+                        {Array.from({ length: 3 }).map((_, index) => (
+                          <b className={index < value ? "is-filled" : ""} key={index} />
+                        ))}
+                      </i>
+                    </span>
+                  ))}
+                </div>
+
+                {route.capacityVehicleStress && (
+                  <div className="capacity-stress">
+                    <span>Known-capacity vehicle stress test</span>
+                    <strong>{route.capacityVehicleStress.label}</strong>
+                    <small>
+                      25–75% capacity use · 45–75% car share · 2.0–2.6 people/car
+                    </small>
+                  </div>
+                )}
+
+                <div className="route-call">
+                  <strong>{route.override}</strong>
+                  <span>{route.action}</span>
+                </div>
+                <p className="route-confidence">
+                  Confidence {route.confidence} · parking: {route.parking}
+                </p>
+              </article>
+            );
+          })}
+        </div>
+
+        <p className="war-warning">{warGameData.meta.warning}</p>
+      </section>
+
       <section className="section live-section" id="live">
         <div className="section-heading">
           <div>
@@ -625,7 +1045,16 @@ export default function Home() {
             </span>
           </div>
         ) : (
-          <div className="forecast-grid" aria-busy={weatherStatus === "loading"}>
+          <>
+            <p className="forecast-warning">
+              Deterministic Best Match point fields · cloud percentages are
+              grid-cell cover, not probabilities. Model initialization is not
+              exposed by this endpoint.
+            </p>
+            <div
+              className="forecast-grid"
+              aria-busy={weatherStatus === "loading"}
+            >
             {(weather?.locations ?? []).map((location) => (
               <article className="forecast-card" key={location.id}>
                 <div className="forecast-card-heading">
@@ -681,7 +1110,8 @@ export default function Home() {
               Array.from({ length: 6 }).map((_, index) => (
                 <div className="forecast-skeleton" key={index} aria-hidden="true" />
               ))}
-          </div>
+            </div>
+          </>
         )}
 
         <div className="provider-note">
@@ -861,7 +1291,9 @@ export default function Home() {
 
       <nav className="mobile-nav" aria-label="Mobile navigation">
         <a href="#today">Today</a>
-        <a href="#scenarios">Scenarios</a>
+        <a href="#scenarios">Branches</a>
+        <a href="#war-games">War game</a>
+        <a href="#routes">Routes</a>
         <a href="#live">Live</a>
         <a href="#evidence">Evidence</a>
       </nav>
@@ -869,11 +1301,61 @@ export default function Home() {
   );
 }
 
+function resolveScenario(
+  scenario: Scenario,
+  coastDirection: CoastDirection,
+): Scenario {
+  if (scenario.id !== "coast") return scenario;
+  return coastDirection === "west"
+    ? {
+        ...scenario,
+        title: "West coastal gap",
+        thesis:
+          "Commit once to a broad stable western gap. Never reverse east.",
+        primary: "Cabo Vidio → Caroyas",
+        backup: "Same-side fallback only; no eastward reversal",
+        trigger:
+          "A broad western gap is materially better in three consecutive 10-minute satellite frames.",
+        liveIds: ["vidio", "caroyas"],
+      }
+    : {
+        ...scenario,
+        title: "East coastal gap",
+        thesis:
+          "Commit once to a broad stable eastern gap. Never reverse west.",
+        primary: "El Espartal → Xagó",
+        backup: "Same-side fallback only; Cabo Peñas is rejected",
+        trigger:
+          "A broad eastern gap is materially better in three consecutive 10-minute satellite frames.",
+        liveIds: ["espartal", "xago"],
+      };
+}
+
+function gateLabel(
+  gate: GateKey,
+  scenario: ScenarioId,
+  coastDirection: CoastDirection,
+) {
+  if (scenario !== "coast") return GATE_LABELS[gate];
+  const direction = coastDirection === "west" ? "western" : "eastern";
+  if (gate === "access") {
+    return `Legal ${direction} destination and parking/shuttle confirmed`;
+  }
+  if (gate === "satellite") {
+    return `Three consecutive frames confirm the ${direction} gap`;
+  }
+  if (gate === "direct") {
+    return `Direct view/camera confirms the ${direction} 280° corridor`;
+  }
+  return GATE_LABELS[gate];
+}
+
 function deriveModelSignal(
   locations: ForecastLocation[],
   daysOut: number | null,
 ): {
   scenario: ScenarioId | null;
+  coastDirection: CoastDirection | null;
   actionable: boolean;
   headline: string;
   detail: string;
@@ -883,6 +1365,7 @@ function deriveModelSignal(
   if (!locations.length || daysOut == null) {
     return {
       scenario: null,
+      coastDirection: null,
       actionable: false,
       headline: "NO ACTIONABLE RECOMMENDATION",
       detail: "Waiting for timestamped model data. Climatology is not substituted.",
@@ -943,11 +1426,15 @@ function deriveModelSignal(
   if (daysOut > 7) {
     return {
       scenario: leader.scenario,
+      coastDirection:
+        leader.label === "west coast"
+          ? "west"
+          : leader.label === "east coast"
+            ? "east"
+            : null,
       actionable: false,
       headline: "HOLD ALL BRANCHES",
-      detail: `${leader.label} leads the current long-range point model at ${Math.round(
-        leader.value,
-      )}% total cloud. This is too early for movement or venue selection.`,
+      detail: `${leader.label} currently ranks clearest in the long-range point model. This is too early for movement or venue selection, and the field is not a probability.`,
       window,
       tone,
     };
@@ -956,6 +1443,7 @@ function deriveModelSignal(
   if (total("soto") <= 30) {
     return {
       scenario: "clear",
+      coastDirection: null,
       actionable: daysOut <= 4,
       headline: "LOCAL BRANCH LEADS",
       detail: `Soto is modelled near ${Math.round(total("soto"))}% total cloud. Lowest movement remains preferred.`,
@@ -967,6 +1455,7 @@ function deriveModelSignal(
   if (south.value <= 35 && total("soto") - south.value >= 25) {
     return {
       scenario: "leon",
+      coastDirection: null,
       actionable: daysOut <= 4,
       headline: "SOUTH SIGNAL—EARLY GATE",
       detail: `The sampled south plain is ${Math.round(
@@ -984,6 +1473,7 @@ function deriveModelSignal(
   ) {
     return {
       scenario: "low",
+      coastDirection: null,
       actionable: daysOut <= 4,
       headline: "POSSIBLE SHALLOW-DECK BRANCH",
       detail:
@@ -997,6 +1487,7 @@ function deriveModelSignal(
   if (coast.value <= 40 && total("soto") - coast.value >= 25) {
     return {
       scenario: "coast",
+      coastDirection: coast === west ? "west" : "east",
       actionable: daysOut <= 4,
       headline: `${coast.label.toUpperCase()} SIGNAL`,
       detail: `${coast.label} is ${Math.round(
@@ -1009,6 +1500,7 @@ function deriveModelSignal(
 
   return {
     scenario: null,
+    coastDirection: null,
     actionable: false,
     headline: "NO CLEAN MODEL BRANCH",
     detail:
@@ -1103,6 +1595,16 @@ function formatPercent(value: number | null | undefined) {
 
 function formatValue(value: number | null | undefined, suffix: string) {
   return value == null ? "—" : `${Math.round(value)}${suffix}`;
+}
+
+function formatInteger(value: number) {
+  return new Intl.NumberFormat("en-GB").format(value);
+}
+
+function humanizeFactor(value: string) {
+  return value
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/^./, (first) => first.toUpperCase());
 }
 
 function formatMadridTime(value: string) {

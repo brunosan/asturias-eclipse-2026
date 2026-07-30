@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-07-29T17:35:13.099Z",
+  "generated_at": "2026-07-30T08:57:59.127Z",
   "summary": {
-    "passed": 21,
+    "passed": 28,
     "failed": 0,
-    "total": 21
+    "total": 28
   },
   "checks": [
     {
@@ -42,9 +42,39 @@
       "evidence": "12 locations"
     },
     {
+      "name": "joint cloud scenarios",
+      "passed": true,
+      "evidence": "18 exact joint rows"
+    },
+    {
       "name": "forecast snapshot segregated",
       "passed": true,
       "evidence": "24 illustrative-only rows"
+    },
+    {
+      "name": "war-game scenario count",
+      "passed": true,
+      "evidence": "30 scenarios"
+    },
+    {
+      "name": "war-game scenario ids unique",
+      "passed": true,
+      "evidence": "30 unique ids"
+    },
+    {
+      "name": "war-game probability provenance",
+      "passed": true,
+      "evidence": "E/L/K/H declared; empirical denominators present; heuristic ranges qualitative"
+    },
+    {
+      "name": "war-game operational responses",
+      "passed": true,
+      "evidence": "30 complete response records"
+    },
+    {
+      "name": "route-pressure formulas",
+      "passed": true,
+      "evidence": "10 disclosed scores; no numeric disruption priors"
     },
     {
       "name": "C2/maximum/C3 horizon profiles",
@@ -99,7 +129,7 @@
     {
       "name": "report DECISION-PLAYBOOK.md",
       "passed": true,
-      "evidence": "11689 bytes"
+      "evidence": "11686 bytes"
     },
     {
       "name": "report COUNCIL-REVIEW.md",
@@ -109,7 +139,12 @@
     {
       "name": "report METHODS-AND-SOURCES.md",
       "passed": true,
-      "evidence": "15332 bytes"
+      "evidence": "17830 bytes"
+    },
+    {
+      "name": "report WAR-GAME-ASSESSMENT.md",
+      "passed": true,
+      "evidence": "16229 bytes"
     }
   ]
 }

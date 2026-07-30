@@ -28,3 +28,26 @@ evidence cut.
 
 The obscuration, terrain-shadow, and AEMET image inputs are documented for
 provenance but are not required by the published rebuild helpers.
+
+## 30 July war-game inputs
+
+The long-tail and traffic-pressure review reads the following public sources
+directly; no raw copy is distributed:
+
+- [INE official municipal population, table
+  29005](https://www.ine.es/jaxiT3/Tabla.htm?t=29005), 1 January 2025;
+- [INE advertised tourist dwellings and beds, table
+  39363](https://www.ine.es/jaxiT3/Tabla.htm?t=39363), May 2026;
+- [MITMA 2024 permanent traffic
+  stations](https://cdn.transportes.gob.es/portal-web-transportes/carreteras/nuestrared/movilidad/RCE/trafico_en_estaciones_permanentes_2024.pdf);
+- [MITMA 2024 toll-road
+  traffic](https://cdn.transportes.gob.es/portal-web-transportes/carreteras/nuestrared/movilidad/RCE/trafico_en_las_autopistas_de_peaje_2024.pdf);
+- [IGN municipality
+  boundaries](https://services1.arcgis.com/nCKYwcSONQTkPA4K/arcgis/rest/services/muni/FeatureServer/0),
+  used to scope live route corridors;
+- [DGT DATEX II live situation
+  feed](https://nap.dgt.es/datex2/v3/dgt/SituationPublication/datex2_v37.xml).
+
+The INE tourist-bed values are used only as a tourism-intensity proxy. The DGT
+snapshot is time-sensitive and the application refreshes it; no current
+restriction is inferred from this manifest alone.

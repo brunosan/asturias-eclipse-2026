@@ -30,12 +30,15 @@ cannot guarantee a clear Sun.
 - [Project intent](docs/PROJECT-INTENT.md)
 - [Decision playbook](docs/DECISION-PLAYBOOK.md)
 - [Council review](docs/COUNCIL-REVIEW.md)
+- [Long-tail war-game assessment](docs/WAR-GAME-ASSESSMENT.md)
 - [Methods and sources](docs/METHODS-AND-SOURCES.md)
 - [Public release assessment](docs/RELEASE-ASSESSMENT.md)
 - [Candidate inputs](data/candidate-sites.csv)
 - [Calculated candidate evidence](data/derived/candidate-evidence.csv)
 - [Site verdicts](data/derived/site-verdicts.csv)
 - [Historical cloud analysis](data/derived/cloud-climatology.csv)
+- [Joint cloud-regime scenarios](data/derived/cloud-joint-scenarios.csv)
+- [Machine-readable 30-scenario and route-pressure register](site/app/data/war-game-assessment.json)
 - [Atlas validation receipt](validation/atlas-validation.json)
 - [Interactive scenario atlas](maps/scenario-atlas.html)
 - [Web application source](site/)
@@ -89,7 +92,9 @@ npm test
 ```
 
 The site reads Open-Meteo forecast data and the DGT DATEX II incident feed at
-runtime. Provider failure remains visible and is never interpreted as clear
+runtime. It matches every non-expired DGT situation record to the road
+references used by ten assessed routes before truncating the display. Provider
+failure or zero route matches remain visible and are never interpreted as clear
 weather or a clear road.
 
 ## Publication boundary

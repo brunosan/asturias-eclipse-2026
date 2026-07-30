@@ -26,9 +26,12 @@ The analysis separates four things that are often collapsed:
 | `data/derived/horizon-profiles/` | Every 200 m elevation sample used in each C2/maximum/C3 terrain result |
 | `data/derived/cloud-climatology.csv` | Full 18:00 UTC CERRA location statistics |
 | `data/derived/cloud-conditional.csv` | Conditional outcomes when the Soto grid cell was overcast or strictly low-cloud dominant |
+| `data/derived/cloud-joint-scenarios.csv` | Fresh exact joint counts for coastal gradients, ridge outcomes and south-side escapes |
 | `data/derived/current-forecast-snapshot.csv` | Long-range forecast snapshot, separated from climatology |
 | `data/derived/cloud-method-metadata.json` | Exact model, date window, request template, definitions and caveats |
 | `data/derived/official-site-data-audit.json` | Field-completeness audit of the 78-site Asturias feed |
+| `site/app/data/war-game-assessment.json` | Thirty long-tail conditions, ten route-pressure assessments and probability provenance |
+| `docs/WAR-GAME-ASSESSMENT.md` | Council review, joint-cloud interpretation and disclosed traffic model |
 | `maps/` | Five static scenario maps, an interactive atlas and its template |
 Raw external mirrors and source screenshots are deliberately omitted from this
 public repository. Their exact upstream URLs and local verification hashes are
@@ -109,7 +112,7 @@ query URL and retrieval time in `data/derived/routes/`.
 
 The values are **free-flow baselines**. OSRM does not know eclipse traffic,
 closures, parking searches, shuttles or emergency controls. No multiplier was
-applied because there is no defensible local demand/road-capacity model yet.
+applied, and no baseline is presented as an eclipse-day ETA.
 
 Municipal population uses the INE 1 January 2025 totals:
 
@@ -118,6 +121,27 @@ Municipal population uses the INE 1 January 2025 totals:
 
 Population is retained as context, not used as an attendance forecast. Summer
 visitors and eclipse travel dominate local resident counts.
+
+The 30 July war game adds a deliberately uncalibrated **route-pressure triage**
+model. It combines eight published 0–3 components: residents, May 2026 INE
+tourist-bed intensity, site attraction, summer arterial load, last-mile
+fragility, competing-route overlap, parking confidence and control state.
+Every component, weight, imputation and hard override is published in
+[`WAR-GAME-ASSESSMENT.md`](WAR-GAME-ASSESSMENT.md) and the machine-readable
+register. The result is a low/guarded/high/severe/critical pressure band—not a
+travel time.
+
+The tourism proxy comes from [INE tourist dwellings and beds, May
+2026](https://www.ine.es/jaxiT3/Tabla.htm?t=39363). It is not occupancy, total
+tourism or car demand. Where the official people capacity is complete, the site
+also shows a wide vehicle-demand **stress test** using declared assumptions; it
+is not an attendance forecast.
+
+Live corridor membership uses OSRM step road references plus official IGN
+municipality-boundary intersections. DGT records are matched against every
+province and municipality value they supply. Road and municipality sets are
+independent filters rather than kilometre-accurate segments, so they may
+overmatch and can never prove a route clear.
 
 The [official Asturias observation-site
 API](https://eclipseasturias2026.ficyt.es/api/eclipse_observation_spots.php)
@@ -198,6 +222,22 @@ Isidro/Fuente Dé were clear in 8–14.4%; Astorga was clear in 49.6%, León in
 The strict shallow-low-cloud screen has only 35 cases, so it is directional,
 not a probability claim. In those cases, the high ridges were clear in
 25.7–42.9% and the south plain in 68.6–91.4%.
+
+The exact joint recomputation is published separately in
+`data/derived/cloud-joint-scenarios.csv`. It adds the operationally relevant
+distinctions:
+
+- with partial cloud at Soto, any other sampled coast was clear in 42.6% of
+  cases but the nearby Vidio-or-Peñas pair in only 17.3%;
+- with Soto overcast, any other sampled coast was clear in 8.0% and the nearby
+  pair in 0.8%;
+- under the strict shallow-deck signature, any sampled ridge was clear in
+  54.3%, all ridges failed in 45.7%, and any sampled south point was clear in
+  all 35 cases;
+- when all sampled coast cells were non-clear, a sampled south point was clear
+  in 63.2% of cases.
+
+These scenarios overlap and cannot be added to 100%.
 
 The main inference is robust but limited: another coastal point is not an
 independent escape when Soto is deeply clouded; a cross-divide branch changes
@@ -308,6 +348,9 @@ overflow and runtime errors.
 ## Limitations
 
 - No current dataset supports a credible eclipse-day traffic ETA.
+- Route-pressure scores are disclosed structured judgments converted to
+  ordinal bands, not event frequencies or delay probabilities.
+- INE tourist-bed counts are a demand-intensity proxy, not occupancy or cars.
 - No populated official parking inventory exists in the Asturias feed.
 - Terrain is a DEM screen, not a field survey.
 - Cloud fraction does not encode optical thickness.

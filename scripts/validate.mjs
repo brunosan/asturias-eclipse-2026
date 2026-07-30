@@ -26,9 +26,21 @@ const cloud = parseCsv(
     "utf8",
   ),
 );
+const cloudJoint = parseCsv(
+  await fs.readFile(
+    path.join(ROOT, "data", "derived", "cloud-joint-scenarios.csv"),
+    "utf8",
+  ),
+);
 const forecast = parseCsv(
   await fs.readFile(
     path.join(ROOT, "data", "derived", "current-forecast-snapshot.csv"),
+    "utf8",
+  ),
+);
+const warGame = JSON.parse(
+  await fs.readFile(
+    path.join(ROOT, "site", "app", "data", "war-game-assessment.json"),
     "utf8",
   ),
 );
@@ -67,10 +79,75 @@ check(
   `${cloud.length} locations`,
 );
 check(
+  "joint cloud scenarios",
+  cloudJoint.length === 18 &&
+    cloudJoint.every((row) => Number(row.base_n) === 600) &&
+    cloudJoint.find((row) => row.id === "nearby_gap_given_soto_partial")
+      ?.conditional_pct === "17.3" &&
+    cloudJoint.find((row) => row.id === "strict_low_any_ridge_clear")
+      ?.conditional_pct === "54.3" &&
+    cloudJoint.find((row) => row.id === "soto_overcast_any_south_clear")
+      ?.conditional_pct === "61.6",
+  `${cloudJoint.length} exact joint rows`,
+);
+check(
   "forecast snapshot segregated",
   forecast.length > 0 &&
     forecast.every((row) => row.status === "illustrative-only"),
   `${forecast.length} illustrative-only rows`,
+);
+check(
+  "war-game scenario count",
+  warGame.scenarios.length >= 20 &&
+    warGame.meta.scenarioCount === warGame.scenarios.length,
+  `${warGame.scenarios.length} scenarios`,
+);
+check(
+  "war-game scenario ids unique",
+  new Set(warGame.scenarios.map((scenario) => scenario.id)).size ===
+    warGame.scenarios.length,
+  `${new Set(warGame.scenarios.map((scenario) => scenario.id)).size} unique ids`,
+);
+check(
+  "war-game probability provenance",
+  warGame.scenarios.every((scenario) =>
+    ["E", "L", "K", "H"].includes(scenario.probability.kind),
+  ) &&
+    warGame.scenarios
+      .filter((scenario) => scenario.probability.kind === "E")
+      .every((scenario) => Number.isFinite(scenario.probability.denominator)) &&
+    warGame.scenarios
+      .filter((scenario) => scenario.probability.kind === "H")
+      .every(
+        (scenario) =>
+          !/\d+\s*[–-]\s*\d+%/.test(scenario.probability.label),
+      ),
+  "E/L/K/H declared; empirical denominators present; heuristic ranges qualitative",
+);
+check(
+  "war-game operational responses",
+  warGame.scenarios.every(
+    (scenario) =>
+      scenario.trigger &&
+      scenario.action &&
+      scenario.mitigation &&
+      scenario.hardStop &&
+      scenario.deadline,
+  ),
+  `${warGame.scenarios.length} complete response records`,
+);
+check(
+  "route-pressure formulas",
+  warGame.routes.length === warGame.meta.routeCount &&
+    warGame.routes.every(
+      (route) =>
+        route.freeflowIsEta === false &&
+        route.conditionalDisruption.calibrated === false &&
+        route.conditionalDisruption.min == null &&
+        route.conditionalDisruption.max == null &&
+        scoreRoute(route.components) === route.pressureScore,
+    ),
+  `${warGame.routes.length} disclosed scores; no numeric disruption priors`,
 );
 
 const horizonFiles = (
@@ -129,6 +206,7 @@ const reports = [
   "DECISION-PLAYBOOK.md",
   "COUNCIL-REVIEW.md",
   "METHODS-AND-SOURCES.md",
+  "WAR-GAME-ASSESSMENT.md",
 ];
 for (const file of reports) {
   const stat = await fs.stat(path.join(ROOT, "docs", file));
@@ -164,6 +242,26 @@ function sameIds(left, right) {
     rightIds.length === right.length &&
     JSON.stringify(leftIds) === JSON.stringify(rightIds)
   );
+}
+
+function scoreRoute(components) {
+  const weights = {
+    resident: 0.1,
+    tourism: 0.15,
+    magnet: 0.15,
+    seasonalLoad: 0.1,
+    fragility: 0.2,
+    overlap: 0.1,
+    parking: 0.15,
+    controls: 0.05,
+  };
+  const raw =
+    (100 / 3) *
+    Object.entries(weights).reduce(
+      (sum, [key, weight]) => sum + components[key] * weight,
+      0,
+    );
+  return Math.round(raw / 5) * 5;
 }
 
 function parseCsv(text) {
